@@ -39,6 +39,7 @@ function dumpDetails(json, title, divId) {
 	var cols = Object.keys(stats).sort();
 	var rows = Object.keys(Object.assign({}, ...Object.values(stats))).sort();
 	h += '</table><h3>Key statistics</h3><table><tr><th>Start \\ Risk</th><th>'+cols.join('</th><th>')+'</th><th>Total</th></tr>';
+	var total = 0;
 	for(var row of rows) {
 		var sum = 0;
 		h += '<tr><td><b>'+row+'</b></td>';
@@ -46,9 +47,10 @@ function dumpDetails(json, title, divId) {
 			h+="<td>"+(sum += (stats[col][row] || 0))+"</td>";
 		}
 		h +='<td><b>'+sum+'</b></td></tr>';
+		total += sum;
 	}
 	h += '<tr><td><b><i>Sum</i></b></td><td><i>'+cols.map(c => Object.values(stats[c]).reduce((x,y) => x+y)).join('</i></td><td><i>')+'</i></td>';
-	h +='<td><b><i>'+sum+'</i></b></td></tr></table><h3>Remaining data</h3><pre class="json">'+syntaxHighlight(json) + "</pre></div>";
+	h +='<td><b><i>'+total+'</i></b></td></tr></table><h3>Remaining data</h3><pre class="json">'+syntaxHighlight(json) + "</pre></div>";
 	document.getElementById(divId).innerHTML = h;
 }
 
