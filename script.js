@@ -65,7 +65,7 @@ function loadDay(ctry, day) {
 	decodeZip(BASEURL+"country/"+ctry+"/date/"+day).then(json => dumpDetails(json, ctry+" "+day, "content-"+ctry+"@"+day));
 }
 function getJSON(url) {
-	return fetch(url).then(response => response.json());
+	return fetch(url).then(response => response.status == 404 ? Promise.resolve([]) : response.json());
 }
 
 function makeHourLinks(ctry, day, jHours) {
