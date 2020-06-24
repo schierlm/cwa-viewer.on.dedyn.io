@@ -4,19 +4,21 @@ var BASEURL = "https://cors-anywhere.herokuapp.com/svc90.main.px.t-online.de/ver
 function decodeZip(url) {
 	return fetch(url)
 		.then(response => response.arrayBuffer())
-		.then(buffer => zip.loadAsync(buffer))
-		.then(zipFile => Promise.all([protobuf.load("keyExportFormat.proto"), zip.file("export.bin").async("arraybuffer")]))
+		.then(buffer => Promise.all([zip.loadAsync(buffer), Promise.resolve(buffer.byteLength)]))
+		.then(zipFile => Promise.all([protobuf.load("keyExportFormat.proto"), zipFile[0].file("export.bin").async("arraybuffer"), Promise.resolve(zipFile[1])]))
 		.then(val => {
 			var root = val[0], buffer = val[1];
 			if (String.fromCharCode.apply(null, new Uint8Array(buffer.slice(0, 16))) != "EK Export v1    ") {
 				return Promise.reject("Invalid file format");
 			}
-			return Promise.resolve(root.lookupType("TemporaryExposureKeyExport").decode(new Uint8Array(buffer.slice(16))));
+			var json = root.lookupType("TemporaryExposureKeyExport").decode(new Uint8Array(buffer.slice(16)));
+			json._zipSize = val[2];
+			return Promise.resolve(json);
 		});
 }
 
 function dumpDetails(json, title, divId) {
-	var h = '<div class="details"><h2>'+title+'</h2><h3>Keys</h3><table><tr><th>Data</th><th>Risk</th><th>Period</th><th>Start</th><th>Graph</th></tr>';
+	var h = '<div class="details"><h2>'+title+' ('+((json._zipSize+1023)/1024 | 0) +' KB)</h2><h3>Keys</h3><table><tr><th>Data</th><th>Risk</th><th>Period</th><th>Start</th><th>Graph</th></tr>';
 	var stats = {}, minStart = Number.MAX_SAFE_INTEGER, maxStart = 0;
 	for(var key of json.keys) {
 		var start = key.rollingStartIntervalNumber;
@@ -36,6 +38,7 @@ function dumpDetails(json, title, divId) {
 		h += '</td><td>'+key.rollingStartIntervalNumber+'</td><td>'+key.rollingPeriod+'</td><td><tt>'+graph+'</tt></td></tr>';
 	}
 	delete json.keys;
+	delete json._zipSize;
 	var cols = Object.keys(stats).sort();
 	var rows = Object.keys(Object.assign({}, ...Object.values(stats))).sort();
 	h += '</table><h3>Key statistics</h3><table><tr><th>Start \\ Risk</th><th>'+cols.join('</th><th>')+'</th><th>Total</th></tr>';
@@ -90,7 +93,7 @@ function loadCountry(ctry) {
 			h += makeHourLinks(ctry, today, jHours);
 		}
 		for (var day of jDays) {
-			h +='<h3>'+day+'</h3><div id="content-'+ctry+"@"+day+'"><button onclick="loadDay(\''+ctry+'\',\'' +day+'\')">Load day data</button><button onclick="loadHours(\''+ctry+'\',\'' +day+'\')">Load hours data</button></div>'
+			h +='<h3>'+day+'</h3><div id="content-'+ctry+"@"+day+'"><button onclick="loadDay(\''+ctry+'\',\'' +day+'\')">Load day data</button> <button onclick="loadHours(\''+ctry+'\',\'' +day+'\')">Load hours data</button></div>'
 		}
 		document.getElementById("content-"+ctry).innerHTML = h;
 	});
