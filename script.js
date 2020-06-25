@@ -47,7 +47,9 @@ function dumpDetails(json, title, divId) {
 		var sum = 0;
 		h += '<tr><td><b>'+row+'</b></td>';
 		for (var col of cols) {
-			h+="<td>"+(sum += (stats[col][row] || 0))+"</td>";
+			var stat = stats[col][row] || 0;
+			sum += stat;
+			h+="<td>"+stat+"</td>";
 		}
 		h +='<td><b>'+sum+'</b></td></tr>';
 		total += sum;
