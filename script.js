@@ -72,7 +72,7 @@ function getJSON(url) {
 
 function makeHourLinks(ctry, day, jHours) {
 	var h = "";
-	for (var hour of jHours) {
+	for (var hour of jHours.reverse()) {
 		h += '<h4>'+hour+':00</h4><div id="content-'+ctry+'@'+day+'T'+hour+'"><button onclick="loadHour(\''+ctry+'\',\''+day+'\',\''+hour+'\')">Load hour data</button></div>';
 	}
 	return h;
@@ -94,7 +94,7 @@ function loadCountry(ctry) {
 			h +='<h3>'+today+'</h3>';
 			h += makeHourLinks(ctry, today, jHours);
 		}
-		for (var day of jDays) {
+		for (var day of jDays.reverse()) {
 			h +='<h3>'+day+'</h3><div id="content-'+ctry+"@"+day+'"><button onclick="loadDay(\''+ctry+'\',\'' +day+'\')">Load day data</button> <button onclick="loadHours(\''+ctry+'\',\'' +day+'\')">Load hours data</button></div>'
 		}
 		document.getElementById("content-"+ctry).innerHTML = h;
