@@ -101,12 +101,48 @@ function loadCountry(ctry) {
 	});
 }
 
+var historicJSON = {};
+
+function loadOldHour(ctry, day, hour) {
+	decodeZip("./history_"+ctry+"/"+day+"@"+hour+".zip").then(json => dumpDetails(json, ctry+" "+day+" "+hour+":00", "ocontent-"+ctry+"@"+day+"T"+hour));
+}
+
+function loadOldDay(ctry, day) {
+	decodeZip("./history_"+ctry+"/"+day+".zip").then(json => dumpDetails(json, ctry+" "+day, "ocontent-"+ctry+"@"+day));
+}
+
+function makeOldHourLinks(ctry, day, jHours) {
+	var h = "";
+	for (var hour of jHours.reverse()) {
+		h += '<h4>'+hour+':00</h4><div id="ocontent-'+ctry+'@'+day+'T'+hour+'"><button onclick="loadOldHour(\''+ctry+'\',\''+day+'\',\''+hour+'\')">Load old hour data</button></div>';
+	}
+	return h;
+}
+
+function loadOldHours(ctry, day) {
+	var jHours = historicJSON[ctry][day].filter(x => x !== true);
+	document.getElementById("ocontent-"+ctry+"@"+day).innerHTML = makeOldHourLinks(ctry, day, jHours);
+}
+
+function loadOldCountry(ctry) {
+	getJSON("history_"+ctry+"/list.json").then(json => {
+		delete json[""];
+		historicJSON[ctry] = json;
+		var h = "";
+		for (var day of Object.keys(json).sort().reverse()) {
+			h +='<h3>'+day+'</h3><div id="ocontent-'+ctry+"@"+day+'"><button onclick="loadOldDay(\''+ctry+'\',\'' +day+'\')">Load old day data</button> <button onclick="loadOldHours(\''+ctry+'\',\'' +day+'\')">Load old hours data</button></div>'
+		}
+		document.getElementById("ocontent-"+ctry).innerHTML = h;
+	});
+}
+
 window.onload = function() {
 	getJSON(BASEURL + "country").then(json => {
 		var h = "";
 		for(var ctry of json) {
 			h += '<h2>'+ctry+'</h2><div id="content-'+ctry+'"><button onclick="loadCountry(\''+ctry+'\')">Load country data</button></div>';
 		}
+		h += '<h2>Old-DE</h2><p>Old data is from a mirror that gets updated in infrequent intervals, as the official server does not provide old files.</p><div id="ocontent-DE"><button onclick="loadOldCountry(\'DE\')">Load old country data</button></div>';
 		document.getElementById("content").innerHTML = h;
 	});
 };
