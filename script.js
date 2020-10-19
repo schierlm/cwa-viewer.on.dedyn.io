@@ -143,6 +143,7 @@ window.onload = function() {
 			h += '<h2>'+ctry+'</h2><div id="content-'+ctry+'"><button onclick="loadCountry(\''+ctry+'\')">Load country data</button></div>';
 		}
 		h += '<h2>Old-DE</h2><p>Old data is from a mirror that gets updated in infrequent intervals, as the official server does not provide old files.</p><div id="ocontent-DE"><button onclick="loadOldCountry(\'DE\')">Load old country data</button></div>';
+		h += '<h2>Old-EUR</h2><p>Old data is from a mirror that gets updated in infrequent intervals, as the official server does not provide old files.</p><div id="ocontent-EUR"><button onclick="loadOldCountry(\'EUR\')">Load old country data</button></div>';
 		document.getElementById("content").innerHTML = h;
 	});
 };
