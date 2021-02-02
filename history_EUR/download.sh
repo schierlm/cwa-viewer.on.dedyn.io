@@ -23,7 +23,7 @@ elif [ -z "$2" ]; then
 		exit
 	fi
 	echo "Handling $1"
-	curl -s -S 'https://svc90.main.px.t-online.de/version/v1/diagnosis-keys/country/EUR/date/'$1'/hour' | jq -r '.[]|["./download.sh","'$1'",.]|@sh' | sh -e
+	#curl -s -S 'https://svc90.main.px.t-online.de/version/v1/diagnosis-keys/country/EUR/date/'$1'/hour' | jq -r '.[]|["./download.sh","'$1'",.]|@sh' | sh -e
 	curl -s -S 'https://svc90.main.px.t-online.de/version/v1/diagnosis-keys/country/EUR/date/'$1 >"$1.zip"
 	echo "Done $1"
 else
