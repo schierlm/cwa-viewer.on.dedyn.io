@@ -1,5 +1,5 @@
 var zip = new JSZip();
-var BASEURL = "https://cors-anywhere.herokuapp.com/svc90.main.px.t-online.de/version/v1/diagnosis-keys/";
+var BASEURL = "https://cors.bridged.cc/svc90.main.px.t-online.de/version/v1/diagnosis-keys/";
 
 function decodeZip(url) {
 	return fetch(url)
