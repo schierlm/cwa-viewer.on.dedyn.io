@@ -18,7 +18,7 @@ function decodeZip(url) {
 }
 
 function dumpDetails(json, title, divId) {
-	var h = '<div class="details"><h2>'+title+' ('+((json._zipSize+1023)/1024 | 0) +' KB)</h2><h3>Keys</h3><table><tr><th>Data</th><th>Risk</th><th>Period</th><th>Start</th><th>Graph</th></tr>';
+	var h = '<div class="details"><h2>'+title+' ('+((json._zipSize+1023)/1024 | 0) +' KB)</h2><h3>Keys</h3><table><tr><th>Data</th><th>Risk</th><th>Start</th><th>Period</th><th>Graph</th></tr>';
 	var stats = {}, minStart = Number.MAX_SAFE_INTEGER, maxStart = 0;
 	for(var key of json.keys) {
 		var start = key.rollingStartIntervalNumber;
@@ -27,7 +27,7 @@ function dumpDetails(json, title, divId) {
 	}
 	for(var key of json.keys) {
 		var start = key.rollingStartIntervalNumber;
-		var graph = ("".padEnd((start-minStart)/key.rollingPeriod,'-'))+"#"+("".padEnd((maxStart-start)/key.rollingPeriod, '-'));
+		var graph = ("".padEnd((start-minStart)/144,'-'))+(key.rollingPeriod==144?"#":"?")+("".padEnd((maxStart-start)/144, '-'));
 		if (stats[""+key.transmissionRiskLevel] === undefined)
 			stats[""+key.transmissionRiskLevel] = {};
 		if (stats[""+key.transmissionRiskLevel][""+key.rollingStartIntervalNumber] === undefined)
