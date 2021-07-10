@@ -1,5 +1,5 @@
 var zip = new JSZip();
-var BASEURL = "https://cors.bridged.cc/svc90.main.px.t-online.de/version/v1/diagnosis-keys/";
+var BASEURL = "https://cors.bridged.cc/https://svc90.main.px.t-online.de/version/v1/diagnosis-keys/";
 
 function decodeZip(url) {
 	return fetch(url)
@@ -11,7 +11,8 @@ function decodeZip(url) {
 			if (String.fromCharCode.apply(null, new Uint8Array(buffer.slice(0, 16))) != "EK Export v1    ") {
 				return Promise.reject("Invalid file format");
 			}
-			var json = root.lookupType("TemporaryExposureKeyExport").decode(new Uint8Array(buffer.slice(16)));
+			var json = root.TemporaryExposureKeyExport.decode(new Uint8Array(buffer.slice(16)));
+			json._keyType = root.TemporaryExposureKey;
 			json._zipSize = val[2];
 			return Promise.resolve(json);
 		});
@@ -28,17 +29,22 @@ function dumpDetails(json, title, divId) {
 	for(var key of json.keys) {
 		var start = key.rollingStartIntervalNumber;
 		var graph = ("".padEnd((start-minStart)/144,'-'))+(key.rollingPeriod==144?"#":"?")+("".padEnd((maxStart-start)/144, '-'));
-		if (stats[""+key.transmissionRiskLevel] === undefined)
-			stats[""+key.transmissionRiskLevel] = {};
-		if (stats[""+key.transmissionRiskLevel][""+key.rollingStartIntervalNumber] === undefined)
-			stats[""+key.transmissionRiskLevel][""+key.rollingStartIntervalNumber] = 1;
+		var risk = ""+key.transmissionRiskLevel;
+		if (key.reportType) {
+			risk += " ["+key.daysSinceOnsetOfSymptoms + "d: " + json._keyType.toObject(key, {enums: String}).reportType + "]";
+		}
+		if (stats[risk] === undefined)
+			stats[risk] = {};
+		if (stats[risk][""+key.rollingStartIntervalNumber] === undefined)
+			stats[risk][""+key.rollingStartIntervalNumber] = 1;
 		else
-			stats[""+key.transmissionRiskLevel][""+key.rollingStartIntervalNumber]++;
-		h +='<tr><td><tt>'+[...key.keyData].map (b => b.toString(16).padStart(2, "0")).join(" ")+'</tt></td><td>'+key.transmissionRiskLevel;
+			stats[risk][""+key.rollingStartIntervalNumber]++;
+		h +='<tr><td><tt>'+[...key.keyData].map (b => b.toString(16).padStart(2, "0")).join(" ")+'</tt></td><td>'+risk;
 		h += '</td><td>'+key.rollingStartIntervalNumber+'</td><td>'+key.rollingPeriod+'</td><td><tt>'+graph+'</tt></td></tr>';
 	}
 	delete json.keys;
 	delete json._zipSize;
+	delete json._keyType;
 	var cols = Object.keys(stats).sort();
 	var rows = Object.keys(Object.assign({}, ...Object.values(stats))).sort();
 	h += '</table><h3>Key statistics</h3><table><tr><th>Start \\ Risk</th><th>'+cols.join('</th><th>')+'</th><th>Total</th></tr>';
