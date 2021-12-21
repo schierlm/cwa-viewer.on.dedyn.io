@@ -142,15 +142,21 @@ function loadOldCountry(ctry) {
 	});
 }
 
+function setContent(h) {
+	h += '<h2>Old-DE</h2><p>Old data is from a mirror that gets updated in infrequent intervals, as the official server does not provide old files.</p><div id="ocontent-DE"><button onclick="loadOldCountry(\'DE\')">Load old country data</button></div>';
+	h += '<h2>Old-EUR</h2><p>Old data is from a mirror that gets updated in infrequent intervals, as the official server does not provide old files.</p><div id="ocontent-EUR"><button onclick="loadOldCountry(\'EUR\')">Load old country data</button></div>';
+	document.getElementById("content").innerHTML = h;
+}
+
 window.onload = function() {
 	getJSON(BASEURL + "country").then(json => {
 		var h = "";
 		for(var ctry of json) {
 			h += '<h2>'+ctry+'</h2><div id="content-'+ctry+'"><button onclick="loadCountry(\''+ctry+'\')">Load country data</button></div>';
 		}
-		h += '<h2>Old-DE</h2><p>Old data is from a mirror that gets updated in infrequent intervals, as the official server does not provide old files.</p><div id="ocontent-DE"><button onclick="loadOldCountry(\'DE\')">Load old country data</button></div>';
-		h += '<h2>Old-EUR</h2><p>Old data is from a mirror that gets updated in infrequent intervals, as the official server does not provide old files.</p><div id="ocontent-EUR"><button onclick="loadOldCountry(\'EUR\')">Load old country data</button></div>';
-		document.getElementById("content").innerHTML = h;
+		setContent(h);
+	}).catch(err => {
+		setContent("<h2>Service not available</h2><p>Historic content below:</p>");
 	});
 };
 
